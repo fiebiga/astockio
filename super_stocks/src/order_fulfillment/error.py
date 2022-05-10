@@ -1,0 +1,2 @@
+class OrderAlreadyFulfilledException(Exception):
+    pass

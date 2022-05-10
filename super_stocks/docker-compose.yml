@@ -1,0 +1,91 @@
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: redis
+    ports:
+      - 6379:6379
+    expose:
+      - '6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9997:9997"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      JMX_PORT: 9997
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    restart: "always"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+    depends_on:
+      - "kafka"
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sandbox_user
+      MONGO_INITDB_ROOT_PASSWORD: sandbox_password
+    ports:
+      - "27017:27017"
+    restart: always
+  orders-web:
+    build: .
+    container_name: orders-web
+    ports:
+      - "8000:8000"
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+    entrypoint: ["uvicorn", "orders.web:app", "--host", "0.0.0.0"]
+  order-fulfillment-async:
+    build: .
+    container_name: order-fulfillment-async
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+    entrypoint: ["python", "order_fulfillment/async.py"]
+  orders-async:
+    build: .
+    container_name: orders-async
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+    entrypoint: ["python", "orders/async.py"]
+  exchange-async:
+    build: .
+    container_name: exchange-async
+    restart: always
+    environment:
+      MONGODB_HOST: mongodb
+      KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+    entrypoint: ["python", "exchange/async.py"]
+
