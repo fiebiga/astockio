@@ -35,9 +35,10 @@ It also just sounded like a neat thing to slap together. **There will be no sens
 3. Implement User Order Service
 4. Exclusion of user ability to have simultaneous buy and sell orders for the same stock
 5. Implement Proper Exchange of stocks and account balances in Order Fulfillment Service
-6. Implement ability for a user to request "all or nothing" batch transactions instead of streamed fulfillment
-7. Nginx proxy in front of all uvicorn hosted localhost web servers
-8. Front End UI for basic order/user account balance
+6. Order Lifecycle introspection and record logging
+7. Implement ability for a user to request "all or nothing" batch transactions instead of streamed fulfillment
+8. Nginx proxy in front of all uvicorn hosted localhost web servers
+9. Front End UI for basic order/user account balance
 
 # Getting Started <a name="getting-started"></a>
 In order to get started with the provided configuration, docker must be installed, as well as docker-compose. Beyond that,
