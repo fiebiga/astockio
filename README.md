@@ -38,3 +38,13 @@ It also just sounded like a neat thing to slap together. **There will be no sens
 6. Implement ability for a user to request "all or nothing" batch transactions instead of streamed fulfillment
 7. Nginx proxy in front of all uvicorn hosted localhost web servers
 8. Front End UI for basic order/user account balance
+
+# Getting Started <a name="getting-started"></a>
+In order to get started with the provided configuration, docker must be installed, as well as docker-compose. Beyond that,
+all one needs is to execute the following command
+
+```shell
+docker-compose up
+```
+
+From then on you may access [The Fast API Documentation](http://localhost:8000/docs), available on localhost, to get started
